@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQI Fetch</title>
+    <link rel="stylesheet" href="/style.css">  
+</head>
+<body>
+    <h1>Welcome to AQI Fetch</h1>
+    <p>This will fetch AQI data for your selected city using the API.</p>
+    <p>
+        <a id="copyable-url" href="/aqi/india/madhya-pradesh/bhopal" style="color: blue; text-decoration: underline;">
+            /aqi/india/madhya-pradesh/bhopal
+        </a>
+    </p>
+    <p>To fetch AQI data, use the form below:</p>
+    <form id="aqi-form">
+        <label for="country">Country:</label>
+        <input type="text" id="country" name="country" placeholder="Enter country" required><br><br>
+
+        <label for="state">State:</label>
+        <input type="text" id="state" name="state" placeholder="Enter state" required><br><br>
+
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" placeholder="Enter city" required><br><br>
+
+        <button type="submit">Fetch AQI</button>
+    </form>
+
+    <div id="aqi-result">
+        <!-- The fetched AQI data will be displayed here -->
+    </div>
+
+    <script>
+        document.getElementById('aqi-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const country = document.getElementById('country').value.toLowerCase();
+            const state = document.getElementById('state').value.toLowerCase().replace(/\s+/g, '-'); // Replace spaces with hyphens
+            const city = document.getElementById('city').value.toLowerCase();
+    
+            fetch(`/aqi/${country}/${state}/${city}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const resultDiv = document.getElementById('aqi-result');
+                    resultDiv.innerHTML = `
+                        <h2>AQI Data for ${data.city}, ${data.state}, ${data.country}</h2>
+                        <p>PM2.5: ${data.pm25}</p>
+                        <p>PM10: ${data.pm10}</p>
+                        <p>SO2: ${data.so2}</p>
+                        <p>CO: ${data.co}</p>
+                        <p>O3: ${data.o3}</p>
+                        <p>NO2: ${data.no2}</p>
+                        <p>Last Updated: ${data.lastUpdatedTime}</p>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('aqi-result').innerHTML = `<p>Failed to fetch AQI data. Please check your input.</p>`;
+                });
+        });
+    </script>
+    
+</body>
+</html>
